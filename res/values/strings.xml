@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="wallpaper">StaticWallpaper!</string>
+    <string name="app_name">StaticWallpaper</string>
+    <string name="static_wallpaper">Static</string>
+    <string name="author">Brian Flores</string>
+    <string name="desc">Static</string>
+    
+    <string name="static_settings">Settings</string>
+    <string name="static_settings_title">Select BG</string>
+    <string name="static_settings_summary">Choose which BG to display</string>
+    
+</resources>

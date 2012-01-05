@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    
+    <string-array name="static_bgnames">
+        <item>"Light"</item>
+        <item>"Dark"</item>
+    </string-array>
+
+    <string-array name="static_bgprefix">
+        <item>"light"</item>
+        <item>"dark"</item>
+    </string-array>
+    
+</resources>
