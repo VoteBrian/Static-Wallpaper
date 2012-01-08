@@ -9,13 +9,4 @@
     		android:title="Choose Background"
     		android:summary="Select background image" />
 
-	<!--
-    <ListPreference
-            android:key="static_background"
-            android:title="@string/static_settings_title"
-            android:summary="@string/static_settings_summary"
-            android:entries="@array/static_bgnames"
-            android:entryValues="@array/static_bgprefix" />
-    -->
-
 </PreferenceScreen>
