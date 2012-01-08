@@ -1,12 +1,18 @@
 package net.votebrian.apps;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.os.Environment;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.util.Log;
@@ -19,9 +25,13 @@ public class StaticWallpaper extends WallpaperService {
     /** Called when the activity is first created. */
 	@Override
 	public void onCreate() {
+		super.onCreate();
+		
 		Log.d(TAG, "OnCreate");
 		
-		super.onCreate();
+		// Check if the bg image exists
+		String f = InternalStorage.FILENAME;
+		InternalStorage.setPath(getDir("staticBG", MODE_PRIVATE));
 		//android.os.Debug.waitForDebugger();
 	}
 	
@@ -39,18 +49,31 @@ public class StaticWallpaper extends WallpaperService {
 		return new StaticEngine();
 	}
 	
+	private void createFile() throws IOException {
+		FileOutputStream fos = null;
+		try {
+			fos = openFileOutput(InternalStorage.FILENAME, Context.MODE_PRIVATE);
+		} catch (FileNotFoundException e) {
+			Log.d(TAG, "File Not Found");
+		}
+		
+		fos.close();
+	}
+	
 	/*  ------------------------------------------------
 	 *                      ENGINE
 	 *  ------------------------------------------------
 	 */
 	class StaticEngine extends Engine
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
+		private static final String TAG = "StaticEngine";
 		
 		private final Handler mHandler = new Handler();
 		private SharedPreferences mPrefs;
 		private boolean mVisible;
 		private Bitmap mBackgroundImage;
-		private static final String TAG = "StaticEngine";
+		private String _staticBG;
+		private boolean bg_set = false;
 		
 		private final Runnable mDrawBG = new Runnable() {
             public void run() {
@@ -66,21 +89,26 @@ public class StaticWallpaper extends WallpaperService {
         	mPrefs = StaticWallpaper.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
             mPrefs.registerOnSharedPreferenceChangeListener(this);
             onSharedPreferenceChanged(mPrefs, null);
+            
+            //SharedPreferences.Editor editor = mPrefs.edit();
+            //editor.putBoolean()
         }
 
 		public void onSharedPreferenceChanged(
 				SharedPreferences prefs, String key) {
 			Log.d(TAG, "onSharedPreferenceChanged");
 			
-			String path = prefs.getString("static_background", "default");
-			File f = new File(path);
-            if (f.exists()) {
-            	mBackgroundImage = BitmapFactory.decodeFile(path);
-            	//f.delete();
-            } else {
-            	mBackgroundImage = BitmapFactory.decodeResource(getResources(), R.drawable.dark);
-            }
-            
+			// check if the background image has been set
+			//bg_set = prefs.getBoolean("bg_set", false);
+			String result = prefs.getString("isSet", "notSet");
+			Log.d(TAG, "result:" + result);
+			if (result == "set") {
+				bg_set = true;
+			}
+			//_path = prefs.getString("static_background", "default");
+			
+			//store the image to mBackgroundImage
+			setImage();
             drawFrame();
             
 		}
@@ -91,7 +119,6 @@ public class StaticWallpaper extends WallpaperService {
 			
 			super.onCreate(surfaceHolder);
 			setTouchEventsEnabled(true);
-			//setTouchEventsEnabled(true);
 		}
 		
 		@Override
@@ -107,7 +134,7 @@ public class StaticWallpaper extends WallpaperService {
 			Log.d(TAG, "onVisibilityChanged");
 			
 			mVisible = visible;
-			if(visible) {
+			if(mVisible) {
 				drawFrame();
 			} else {
 				mHandler.removeCallbacks(mDrawBG);
@@ -131,9 +158,13 @@ public class StaticWallpaper extends WallpaperService {
 		public void onSurfaceDestroyed(SurfaceHolder holder) {
 			Log.d(TAG, "onSurfaceDestroyed");
 			
-			super.onSurfaceDestroyed(holder);
 			mVisible = false;
 			mHandler.removeCallbacks(mDrawBG);
+			mBackgroundImage.recycle();
+			mBackgroundImage = null;
+			stopSelf();
+			
+			super.onSurfaceDestroyed(holder);
 		}
 		
 		@Override
@@ -161,9 +192,49 @@ public class StaticWallpaper extends WallpaperService {
 				}
 			}
 			mHandler.removeCallbacks(mDrawBG);
-			if(mVisible) {
-				// nothing
+		}
+		
+		private void setImage() {
+			File external1 = new File(Environment.getExternalStorageDirectory(), "temp_holder.jpg");
+			File external2 = new File(Environment.getExternalStorageDirectory(), "temp_holder2.jpg");
+			File internal = new File(InternalStorage.getFileString());
+			
+			try {
+				copyFile(external1, internal);
+			} catch (IOException e) {
+				Log.d(TAG, "copyFile1 failed");
 			}
+			
+			try {
+				copyFile(internal, external2);
+			} catch (IOException e) {
+				Log.d(TAG, "copyFile2 failed");
+			}
+			
+			Log.d(TAG, "bg_set: " + bg_set);
+			bg_set = true;
+			if(bg_set) {
+				mBackgroundImage = BitmapFactory.decodeFile(InternalStorage.getFileString());
+			} else {
+				mBackgroundImage = BitmapFactory.decodeResource(getResources(), R.drawable.dark);
+			}
+		}
+		
+		public void copyFile(File src, File dst) throws IOException
+		{
+		    FileChannel inChannel = new FileInputStream(src).getChannel();
+		    FileChannel outChannel = new FileOutputStream(dst).getChannel();
+		    try
+		    {
+		        inChannel.transferTo(0, inChannel.size(), outChannel);
+		    }
+		    finally
+		    {
+		        if (inChannel != null)
+		            inChannel.close();
+		        if (outChannel != null)
+		            outChannel.close();
+		    }
 		}
 	}
 }

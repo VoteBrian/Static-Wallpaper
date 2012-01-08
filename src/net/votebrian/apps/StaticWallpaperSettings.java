@@ -17,14 +17,13 @@ import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
-import android.widget.Toast;
 
 public class StaticWallpaperSettings extends PreferenceActivity 
 	implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final String TAG = "StaticWallpaperSettings";
 	
-	private static final String TEMP_BG_FILE = "temp_holder.jpg";
-	private File _f;
+	//private static final String TEMP_BG_FILE = "temp_holder.jpg";
+	//private File _f;
 	
 	@Override
 	protected void onCreate(Bundle icicle) {
@@ -35,9 +34,6 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		addPreferencesFromResource(R.xml.static_settings);
 		getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 		
-		// create an empty image file to temporarily store the cropped, scaled bg image.
-		createTempFile();
-		
 		getPreferenceManager().findPreference("static_background").setOnPreferenceClickListener(new OnPreferenceClickListener()
 		{
 		    
@@ -46,6 +42,12 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        Display display = getWindowManager().getDefaultDisplay(); 
 		        int width = display.getWidth();
 		        int height = display.getHeight();
+		        File f = new File(Environment.getExternalStorageDirectory(), "temp_holder.jpg");
+		        try {
+		        	f.createNewFile();
+		        } catch (IOException e) {
+		        	//nothing
+		        }
 		        // TODO: find out why "crop" seems to require "true" be in quotes while scaleUpIfNeeded seems to require "true" not have quotes
 		        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT, null)
 		        	.setType("image/*")
@@ -56,8 +58,10 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        	.putExtra("outputY", height)
 		        	.putExtra("scale", true)
 		        	.putExtra("scaleUpIfNeeded", true)
-		        	.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile( getTempUri()) )
+		        	.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f))
 		        	.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		        	//.putExtra(MediaStore.EXTRA_OUTPUT, InternalStorage.getFile())
+		        	//.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile( getTempUri()) );
 
 		        startActivityForResult(photoPickerIntent, 1);
 
@@ -95,14 +99,22 @@ public class StaticWallpaperSettings extends PreferenceActivity
 			if (resultCode == Activity.RESULT_OK) {
 			  SharedPreferences customSharedPreference = getSharedPreferences(StaticWallpaper.SHARED_PREFS_NAME, Context.MODE_PRIVATE); 
 			  SharedPreferences.Editor editor = customSharedPreference.edit ();
-			  editor.putString("static_background", getTempFileName());
+			  //editor.putString("static_background", InternalStorage.getFileString());
+			  editor.putString("isSet", "set");
+			  //editor.putBoolean("bg_set", true);
 			  editor.commit(); 
+			} else {
+				Log.d(TAG, "resultCode:" + resultCode);
 			}
+		} else {
+			Log.d(TAG, "requestCode:" + requestCode);
 		}
 	}
 	
+	/*
 	private File getTempUri() {
 		File f = new File(Environment.getExternalStorageDirectory(), TEMP_BG_FILE);
+		File x = new File(getFilesDir(), TEMP_BG_FILE);
 		return f;
 	}
 	
@@ -120,4 +132,5 @@ public class StaticWallpaperSettings extends PreferenceActivity
 			Toast toast = Toast.makeText(getApplicationContext(), "file creation failed", Toast.LENGTH_SHORT);
 		}
 	}
+	*/
 }
