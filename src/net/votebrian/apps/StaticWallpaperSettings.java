@@ -20,15 +20,11 @@ import android.view.Display;
 
 public class StaticWallpaperSettings extends PreferenceActivity 
 	implements SharedPreferences.OnSharedPreferenceChangeListener {
-	private static final String TAG = "StaticWallpaperSettings";
-	
-	//private static final String TEMP_BG_FILE = "temp_holder.jpg";
-	//private File _f;
+	//private static final String TAG = "StaticWallpaperSettings";
 	
 	@Override
 	protected void onCreate(Bundle icicle) {
-		Log.d(TAG, "onCreate");
-		
+		//Log.d(TAG, "onCreate");
 		super.onCreate(icicle);
 		getPreferenceManager().setSharedPreferencesName(StaticWallpaper.SHARED_PREFS_NAME);
 		addPreferencesFromResource(R.xml.static_settings);
@@ -42,13 +38,15 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        Display display = getWindowManager().getDefaultDisplay(); 
 		        int width = display.getWidth();
 		        int height = display.getHeight();
-		        File f = new File(Environment.getExternalStorageDirectory(), "temp_holder.jpg");
+		        
+		        File f = new File(Environment.getExternalStorageDirectory(), StaticWallpaper.EXT_BG_FILENAME);
+		        StaticWallpaper.EXT_BG_FILE = f;
 		        try {
 		        	f.createNewFile();
 		        } catch (IOException e) {
-		        	//nothing
+		        	throw new RuntimeException("Could not create temp file to External storage", e);
 		        }
-		        // TODO: find out why "crop" seems to require "true" be in quotes while scaleUpIfNeeded seems to require "true" not have quotes
+		        
 		        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT, null)
 		        	.setType("image/*")
 		        	.putExtra("crop", "true")
@@ -60,12 +58,8 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        	.putExtra("scaleUpIfNeeded", true)
 		        	.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f))
 		        	.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-		        	//.putExtra(MediaStore.EXTRA_OUTPUT, InternalStorage.getFile())
-		        	//.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile( getTempUri()) );
 
 		        startActivityForResult(photoPickerIntent, 1);
-
-		        Log.d(TAG, "Output X: " + width + " Output Y: " + height);
 		        return true;
 		    }
 		});
@@ -73,64 +67,33 @@ public class StaticWallpaperSettings extends PreferenceActivity
 	
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "onResume");
-		
+		//Log.d(TAG, "onResume");
 		super.onResume();
 	}
 	
 	@Override
 	protected void onDestroy() {
-		Log.d(TAG, "onDestroy");
+		//Log.d(TAG, "onDestroy");
 		getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
 	}
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {		
-		Log.d(TAG, "onSharedPreferenceChanged");
+		//Log.d(TAG, "onSharedPreferenceChanged");
 	}
 	
 	@Override 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d(TAG, "onActivityResult");
-		
+		//Log.d(TAG, "onActivityResult");
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (requestCode == 1) {
 			if (resultCode == Activity.RESULT_OK) {
 			  SharedPreferences customSharedPreference = getSharedPreferences(StaticWallpaper.SHARED_PREFS_NAME, Context.MODE_PRIVATE); 
 			  SharedPreferences.Editor editor = customSharedPreference.edit ();
-			  //editor.putString("static_background", InternalStorage.getFileString());
-			  editor.putString("isSet", "set");
-			  //editor.putBoolean("bg_set", true);
+			  editor.putBoolean("isSet", true);
 			  editor.commit(); 
-			} else {
-				Log.d(TAG, "resultCode:" + resultCode);
 			}
-		} else {
-			Log.d(TAG, "requestCode:" + requestCode);
 		}
 	}
-	
-	/*
-	private File getTempUri() {
-		File f = new File(Environment.getExternalStorageDirectory(), TEMP_BG_FILE);
-		File x = new File(getFilesDir(), TEMP_BG_FILE);
-		return f;
-	}
-	
-	private String getTempFileName() {
-		
-		File f = new File(Environment.getExternalStorageDirectory(), TEMP_BG_FILE);
-		return f.toString();
-	}
-	
-	private void createTempFile() {
-		_f = new File(getTempFileName());
-		try {
-			_f.createNewFile();
-		} catch (IOException e) {
-			Toast toast = Toast.makeText(getApplicationContext(), "file creation failed", Toast.LENGTH_SHORT);
-		}
-	}
-	*/
 }

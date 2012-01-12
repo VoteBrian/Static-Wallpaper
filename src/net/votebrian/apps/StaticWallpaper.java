@@ -2,17 +2,15 @@ package net.votebrian.apps;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.os.Environment;
+import android.net.Uri;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.util.Log;
@@ -20,44 +18,53 @@ import android.view.SurfaceHolder;
 
 public class StaticWallpaper extends WallpaperService {
 	public static final String SHARED_PREFS_NAME="staticSettings";
-	private static final String TAG = "StaticWallpaper";
+	
+	public static final String INT_BG_FILENAME = "staticBG.jpg";
+	public static final String EXT_BG_FILENAME = "temp_holder.jpg";
+	
+	public static File INT_BG_FILE = null;
+	public static File EXT_BG_FILE = null;
+	
+	public static Uri INT_BG_URI = null;
+	
+	public static Boolean BG_FILE_EXISTS = false;
+	
+	private Boolean BG_SET = false;
+	private Boolean INT_SET = false;
+	private Boolean NEW_BG = false;
+	
+	//private static final String TAG = "StaticWallpaper";
 	
     /** Called when the activity is first created. */
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		Log.d(TAG, "OnCreate");
-		
-		// Check if the bg image exists
-		String f = InternalStorage.FILENAME;
-		InternalStorage.setPath(getDir("staticBG", MODE_PRIVATE));
 		//android.os.Debug.waitForDebugger();
+		//Log.d(TAG, "OnCreate");
+		
+		// create the internal file
+		File path = getDir("staticBG", MODE_PRIVATE);
+		
+		INT_BG_FILE = new File(path, INT_BG_FILENAME);
+		try {
+			// createNewFile returns 1 if it creates the file, 0 if the file already exists.
+			BG_FILE_EXISTS = !INT_BG_FILE.createNewFile();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not create Internal Storage file to hold background image.", e);
+		}
+		INT_BG_URI = Uri.fromFile(INT_BG_FILE);
 	}
 	
 	@Override
 	public void onDestroy() {
-		Log.d(TAG, "onDestroy");
-		
+		//Log.d(TAG, "onDestroy");
 		super.onDestroy();
 	}
 
 	@Override
 	public Engine onCreateEngine() {
-		Log.d(TAG, "onCreateEngine");
-		
+		//Log.d(TAG, "onCreateEngine");
 		return new StaticEngine();
-	}
-	
-	private void createFile() throws IOException {
-		FileOutputStream fos = null;
-		try {
-			fos = openFileOutput(InternalStorage.FILENAME, Context.MODE_PRIVATE);
-		} catch (FileNotFoundException e) {
-			Log.d(TAG, "File Not Found");
-		}
-		
-		fos.close();
 	}
 	
 	/*  ------------------------------------------------
@@ -66,48 +73,48 @@ public class StaticWallpaper extends WallpaperService {
 	 */
 	class StaticEngine extends Engine
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
-		private static final String TAG = "StaticEngine";
+		//private static final String TAG = "StaticEngine";
 		
 		private final Handler mHandler = new Handler();
 		private SharedPreferences mPrefs;
 		private boolean mVisible;
 		private Bitmap mBackgroundImage;
-		private String _staticBG;
-		private boolean bg_set = false;
 		
 		private final Runnable mDrawBG = new Runnable() {
             public void run() {
-            	Log.d(TAG, "Runnable");
-            	
                 drawFrame();
             }
         };
         
         StaticEngine() {
-        	Log.d(TAG, "StaticEngine");
-        	
+        	//Log.d(TAG, "StaticEngine");
         	mPrefs = StaticWallpaper.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
             mPrefs.registerOnSharedPreferenceChangeListener(this);
             onSharedPreferenceChanged(mPrefs, null);
             
-            //SharedPreferences.Editor editor = mPrefs.edit();
-            //editor.putBoolean()
+            if(!BG_FILE_EXISTS) {
+            	//Log.d(TAG, "BG File does NOT exist");
+	            SharedPreferences.Editor editor = mPrefs.edit();
+	            editor.putBoolean("isSet", false);
+	            editor.commit();
+            }
         }
 
 		public void onSharedPreferenceChanged(
 				SharedPreferences prefs, String key) {
-			Log.d(TAG, "onSharedPreferenceChanged");
+			//Log.d(TAG, "onSharedPreferenceChanged");
 			
 			// check if the background image has been set
-			//bg_set = prefs.getBoolean("bg_set", false);
-			String result = prefs.getString("isSet", "notSet");
-			Log.d(TAG, "result:" + result);
-			if (result == "set") {
-				bg_set = true;
+			Boolean result = prefs.getBoolean("isSet", false);
+			if (result) {
+				NEW_BG = true;
+				INT_SET = false;
+				
+				SharedPreferences.Editor editor = mPrefs.edit();
+				editor.putBoolean("isSet", false);
+				editor.commit();
 			}
-			//_path = prefs.getString("static_background", "default");
-			
-			//store the image to mBackgroundImage
+
 			setImage();
             drawFrame();
             
@@ -115,24 +122,21 @@ public class StaticWallpaper extends WallpaperService {
 		
 		@Override
 		public void onCreate(SurfaceHolder surfaceHolder) {
-			Log.d(TAG, "onCreate");
-			
+			//Log.d(TAG, "onCreate");
 			super.onCreate(surfaceHolder);
-			setTouchEventsEnabled(true);
+			setTouchEventsEnabled(false);
 		}
 		
 		@Override
 		public void onDestroy() {
-			Log.d(TAG, "onDestroy");
-			
+			//Log.d(TAG, "onDestroy");
 			super.onDestroy();
 			mHandler.removeCallbacks(mDrawBG);
 		}
 		
 		@Override
 		public void onVisibilityChanged(boolean visible) {
-			Log.d(TAG, "onVisibilityChanged");
-			
+			//Log.d(TAG, "onVisibilityChanged");
 			mVisible = visible;
 			if(mVisible) {
 				drawFrame();
@@ -143,21 +147,19 @@ public class StaticWallpaper extends WallpaperService {
 		
 		@Override
 		public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-			Log.d(TAG, "onSurfaceChanged");
-			
+			//Log.d(TAG, "onSurfaceChanged");
 			drawFrame();
 		}
 		
 		@Override
 		public void onSurfaceCreated(SurfaceHolder holder) {
-			Log.d(TAG, "onSurfaceCreated");
+			//Log.d(TAG, "onSurfaceCreated");
 			super.onSurfaceCreated(holder);
 		}
 		
 		@Override
 		public void onSurfaceDestroyed(SurfaceHolder holder) {
-			Log.d(TAG, "onSurfaceDestroyed");
-			
+			//Log.d(TAG, "onSurfaceDestroyed");
 			mVisible = false;
 			mHandler.removeCallbacks(mDrawBG);
 			mBackgroundImage.recycle();
@@ -170,12 +172,11 @@ public class StaticWallpaper extends WallpaperService {
 		@Override
 		public void onOffsetsChanged(float xOffset, float yOffset,
 				float xStep, float yStep, int xPixels, int yPixels) {
-			Log.d(TAG, "onOffsetsChanged");
+			// Log.d(TAG, "onOffsetsChanged");
 		}
 		
 		public void drawFrame() {
-			Log.d(TAG, "drawFrame");
-			
+			//Log.d(TAG, "drawFrame");
 			final SurfaceHolder holder = getSurfaceHolder();
 			Canvas c = null;
 			try{
@@ -195,28 +196,23 @@ public class StaticWallpaper extends WallpaperService {
 		}
 		
 		private void setImage() {
-			File external1 = new File(Environment.getExternalStorageDirectory(), "temp_holder.jpg");
-			File external2 = new File(Environment.getExternalStorageDirectory(), "temp_holder2.jpg");
-			File internal = new File(InternalStorage.getFileString());
+			Log.d("SetImage", "bg_set: " + BG_SET + " int_set: " + INT_SET);
+			//File external = new File(Environment.getExternalStorageDirectory(), EXT_BG_FILENAME);
 			
-			try {
-				copyFile(external1, internal);
-			} catch (IOException e) {
-				Log.d(TAG, "copyFile1 failed");
-			}
-			
-			try {
-				copyFile(internal, external2);
-			} catch (IOException e) {
-				Log.d(TAG, "copyFile2 failed");
-			}
-			
-			Log.d(TAG, "bg_set: " + bg_set);
-			bg_set = true;
-			if(bg_set) {
-				mBackgroundImage = BitmapFactory.decodeFile(InternalStorage.getFileString());
+			if(NEW_BG && INT_SET) {
+				mBackgroundImage = BitmapFactory.decodeFile(INT_BG_FILE.toString());
+			} else if(NEW_BG && EXT_BG_FILE.exists()) {
+				try {
+					copyFile(EXT_BG_FILE, INT_BG_FILE);
+					INT_SET = true;
+				} catch (IOException e) {
+					throw new RuntimeException("Could not copy temp file to Internal Storage", e);
+				}
+				mBackgroundImage = BitmapFactory.decodeFile(INT_BG_FILE.toString());
+				
+				EXT_BG_FILE.delete();
 			} else {
-				mBackgroundImage = BitmapFactory.decodeResource(getResources(), R.drawable.dark);
+				mBackgroundImage = BitmapFactory.decodeResource(getResources(), R.drawable.default_bg);
 			}
 		}
 		
