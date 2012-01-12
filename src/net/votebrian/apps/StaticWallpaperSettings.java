@@ -15,7 +15,6 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Display;
 
 public class StaticWallpaperSettings extends PreferenceActivity 

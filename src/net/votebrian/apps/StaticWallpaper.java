@@ -13,7 +13,6 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 public class StaticWallpaper extends WallpaperService {
@@ -29,7 +28,6 @@ public class StaticWallpaper extends WallpaperService {
 	
 	public static Boolean BG_FILE_EXISTS = false;
 	
-	private Boolean BG_SET = false;
 	private Boolean INT_SET = false;
 	private Boolean NEW_BG = false;
 	
@@ -195,10 +193,7 @@ public class StaticWallpaper extends WallpaperService {
 			mHandler.removeCallbacks(mDrawBG);
 		}
 		
-		private void setImage() {
-			Log.d("SetImage", "bg_set: " + BG_SET + " int_set: " + INT_SET);
-			//File external = new File(Environment.getExternalStorageDirectory(), EXT_BG_FILENAME);
-			
+		private void setImage() {		
 			if(NEW_BG && INT_SET) {
 				mBackgroundImage = BitmapFactory.decodeFile(INT_BG_FILE.toString());
 			} else if(NEW_BG && EXT_BG_FILE.exists()) {

@@ -28,9 +28,7 @@
             android:label="@string/static_settings"
             android:name=".StaticWallpaperSettings"
             android:theme="@android:style/Theme.Light.WallpaperSettings"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+            android:exported="true">
         </activity>
     </application>
 
