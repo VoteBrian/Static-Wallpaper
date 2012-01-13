@@ -95,5 +95,8 @@ public class StaticWallpaperSettings extends PreferenceActivity
 				editor.commit(); 
 			}
 		}
+		
+		// Close the settings page
+		finish();
 	}
 }

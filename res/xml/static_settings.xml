@@ -8,5 +8,4 @@
     		android:key="static_background"
     		android:title="Choose Background"
     		android:summary="Select background image" />
-
 </PreferenceScreen>
