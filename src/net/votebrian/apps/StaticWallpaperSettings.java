@@ -88,10 +88,11 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (requestCode == 1) {
 			if (resultCode == Activity.RESULT_OK) {
-			  SharedPreferences customSharedPreference = getSharedPreferences(StaticWallpaper.SHARED_PREFS_NAME, Context.MODE_PRIVATE); 
-			  SharedPreferences.Editor editor = customSharedPreference.edit ();
-			  editor.putBoolean("isSet", true);
-			  editor.commit(); 
+				//Log.d(TAG, "RESULT_OK");
+				SharedPreferences customSharedPreference = getSharedPreferences(StaticWallpaper.SHARED_PREFS_NAME, Context.MODE_PRIVATE); 
+				SharedPreferences.Editor editor = customSharedPreference.edit ();
+				editor.putBoolean("isSet", true);
+				editor.commit(); 
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
@@ -77,6 +78,9 @@ public class StaticWallpaper extends WallpaperService {
 		private SharedPreferences mPrefs;
 		private boolean mVisible;
 		private Bitmap mBackgroundImage;
+		
+		public int mWidth = 0;
+		public int mHeight = 0;
 		
 		private final Runnable mDrawBG = new Runnable() {
             public void run() {
@@ -146,6 +150,21 @@ public class StaticWallpaper extends WallpaperService {
 		@Override
 		public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 			//Log.d(TAG, "onSurfaceChanged");
+			mWidth = width;
+			mHeight = height;
+			drawFrame();
+
+			/*
+			 * Below is an ugly hack to get around a bug where the background image would be
+			 * warped upon return to the home screen if the user changed screen orientation in
+			 * an app.  Here, I simply wait half a second to redraw the background.  Seems to
+			 * work, but I haven't tested it on many phones.
+			 */
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new RuntimeException("Thread.sleep failed", e);
+			}
 			drawFrame();
 		}
 		
@@ -170,7 +189,7 @@ public class StaticWallpaper extends WallpaperService {
 		@Override
 		public void onOffsetsChanged(float xOffset, float yOffset,
 				float xStep, float yStep, int xPixels, int yPixels) {
-			// Log.d(TAG, "onOffsetsChanged");
+			//Log.d(TAG, "onOffsetsChanged");
 		}
 		
 		public void drawFrame() {
@@ -182,7 +201,7 @@ public class StaticWallpaper extends WallpaperService {
 				if(c != null) {
 					c.save();
 					c.drawColor(0xff000000);
-					c.drawBitmap(mBackgroundImage, 0,0, null);
+					c.drawBitmap(mBackgroundImage, null, new Rect(0,0,mWidth,mHeight), null);
 					c.restore();
 				}
 			} finally {
@@ -193,7 +212,8 @@ public class StaticWallpaper extends WallpaperService {
 			mHandler.removeCallbacks(mDrawBG);
 		}
 		
-		private void setImage() {		
+		private void setImage() {	
+			//Log.d(TAG, "setImage()");
 			if(NEW_BG && INT_SET) {
 				mBackgroundImage = BitmapFactory.decodeFile(INT_BG_FILE.toString());
 			} else if(NEW_BG && EXT_BG_FILE.exists()) {
