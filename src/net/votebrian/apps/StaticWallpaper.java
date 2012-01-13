@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 public class StaticWallpaper extends WallpaperService {
@@ -72,7 +73,7 @@ public class StaticWallpaper extends WallpaperService {
 	 */
 	class StaticEngine extends Engine
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
-		//private static final String TAG = "StaticEngine";
+		private static final String TAG = "StaticEngine";
 		
 		private final Handler mHandler = new Handler();
 		private SharedPreferences mPrefs;
@@ -89,7 +90,7 @@ public class StaticWallpaper extends WallpaperService {
         };
         
         StaticEngine() {
-        	//Log.d(TAG, "StaticEngine");
+        	Log.d(TAG, "StaticEngine");
         	mPrefs = StaticWallpaper.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
             mPrefs.registerOnSharedPreferenceChangeListener(this);
             onSharedPreferenceChanged(mPrefs, null);
@@ -104,7 +105,7 @@ public class StaticWallpaper extends WallpaperService {
 
 		public void onSharedPreferenceChanged(
 				SharedPreferences prefs, String key) {
-			//Log.d(TAG, "onSharedPreferenceChanged");
+			Log.d(TAG, "onSharedPreferenceChanged");
 			
 			// check if the background image has been set
 			Boolean result = prefs.getBoolean("isSet", false);
@@ -124,23 +125,30 @@ public class StaticWallpaper extends WallpaperService {
 		
 		@Override
 		public void onCreate(SurfaceHolder surfaceHolder) {
-			//Log.d(TAG, "onCreate");
+			Log.d(TAG, "onCreate");
 			super.onCreate(surfaceHolder);
 			setTouchEventsEnabled(false);
 		}
 		
 		@Override
 		public void onDestroy() {
-			//Log.d(TAG, "onDestroy");
+			Log.d(TAG, "onDestroy");
 			super.onDestroy();
 			mHandler.removeCallbacks(mDrawBG);
 		}
 		
 		@Override
 		public void onVisibilityChanged(boolean visible) {
-			//Log.d(TAG, "onVisibilityChanged");
+			Log.d(TAG, "onVisibilityChanged");
 			mVisible = visible;
 			if(mVisible) {
+				drawFrame();
+				
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					throw new RuntimeException("Thread.sleep failed", e);
+				}
 				drawFrame();
 			} else {
 				mHandler.removeCallbacks(mDrawBG);
@@ -149,34 +157,23 @@ public class StaticWallpaper extends WallpaperService {
 		
 		@Override
 		public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-			//Log.d(TAG, "onSurfaceChanged");
+			Log.d(TAG, "onSurfaceChanged");
 			mWidth = width;
 			mHeight = height;
-			drawFrame();
-
-			/*
-			 * Below is an ugly hack to get around a bug where the background image would be
-			 * warped upon return to the home screen if the user changed screen orientation in
-			 * an app.  Here, I simply wait half a second to redraw the background.  Seems to
-			 * work, but I haven't tested it on many phones.
-			 */
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				throw new RuntimeException("Thread.sleep failed", e);
-			}
+			
+			Log.d(TAG, "width: " + mWidth + ", height: " + mHeight);
 			drawFrame();
 		}
 		
 		@Override
 		public void onSurfaceCreated(SurfaceHolder holder) {
-			//Log.d(TAG, "onSurfaceCreated");
+			Log.d(TAG, "onSurfaceCreated");
 			super.onSurfaceCreated(holder);
 		}
 		
 		@Override
 		public void onSurfaceDestroyed(SurfaceHolder holder) {
-			//Log.d(TAG, "onSurfaceDestroyed");
+			Log.d(TAG, "onSurfaceDestroyed");
 			mVisible = false;
 			mHandler.removeCallbacks(mDrawBG);
 			mBackgroundImage.recycle();
@@ -193,7 +190,7 @@ public class StaticWallpaper extends WallpaperService {
 		}
 		
 		public void drawFrame() {
-			//Log.d(TAG, "drawFrame");
+			Log.d(TAG, "drawFrame");
 			final SurfaceHolder holder = getSurfaceHolder();
 			Canvas c = null;
 			try{
