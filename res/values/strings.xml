@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="wallpaper">StaticWallpaper!</string>
-    <string name="app_name">StaticWallpaper</string>
-    <string name="static_wallpaper">Static</string>
-    <string name="author">Brian Flores</string>
-    <string name="desc">Static</string>
+    <string name="apps_list_name">Static LiveWallpaper</string>
+    <string name="wp_select_list_name">Static</string>
+    <string name="wp_select_list_desc">Disables wallpaper scrolling.</string>
     
-    <string name="static_settings">Settings</string>
-    <string name="static_settings_title">Select BG</string>
-    <string name="static_settings_summary">Choose which BG to display</string>
+    <string name="settings_title">Settings - Tap back to cancel</string>
+    <string name="preference_title">Change Background</string>
+    <string name="preference_summary">Pick and image and crop to match screen dimensions.</string>
     
 </resources>

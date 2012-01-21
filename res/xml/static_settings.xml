@@ -2,10 +2,10 @@
 
 <PreferenceScreen
 		xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="@string/static_settings_title"
+        android:title="@string/settings_title"
         android:key="staticwallpaper_settings">
     <Preference
-    		android:key="static_background"
-    		android:title="Choose Background"
-    		android:summary="Select background image" />
+    		android:key="static_prefs"
+    		android:title="@string/preference_title"
+    		android:summary="@string/preference_summary" />
 </PreferenceScreen>

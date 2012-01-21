@@ -29,7 +29,7 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		addPreferencesFromResource(R.xml.static_settings);
 		getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 		
-		getPreferenceManager().findPreference("static_background").setOnPreferenceClickListener(new OnPreferenceClickListener()
+		getPreferenceManager().findPreference("static_prefs").setOnPreferenceClickListener(new OnPreferenceClickListener()
 		{
 		    
 		    public boolean onPreferenceClick(Preference preference)
