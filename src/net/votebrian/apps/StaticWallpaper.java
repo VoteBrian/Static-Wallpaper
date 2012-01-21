@@ -19,16 +19,17 @@ import android.view.SurfaceHolder;
 public class StaticWallpaper extends WallpaperService {
 	public static final String SHARED_PREFS_NAME="staticSettings";
 	
+	// Internal Storage File Information
 	public static final String INT_BG_FILENAME = "staticBG.jpg";
-	public static final String EXT_BG_FILENAME = "temp_holder.jpg";
-	
 	public static File INT_BG_FILE = null;
-	public static File EXT_BG_FILE = null;
-	
 	public static Uri INT_BG_URI = null;
 	
-	public static Boolean BG_FILE_EXISTS = false;
+	// External Storage File Information
+	public static final String EXT_BG_FILENAME = "temp_holder.jpg";
+	public static File EXT_BG_FILE = null;
 	
+	// State checks
+	public static Boolean BG_FILE_EXISTS = false;
 	private Boolean INT_SET = false;
 	private Boolean NEW_BG = false;
 	

@@ -46,7 +46,7 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        	throw new RuntimeException("Could not create temp file to External storage", e);
 		        }
 		        
-		        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT, null)
+		        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null)
 		        	.setType("image/*")
 		        	.putExtra("crop", "true")
 		        	.putExtra("aspectX", width)
@@ -58,7 +58,7 @@ public class StaticWallpaperSettings extends PreferenceActivity
 		        	.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f))
 		        	.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
 
-		        startActivityForResult(photoPickerIntent, 1);
+		        startActivityForResult(intent, 1);
 		        return true;
 		    }
 		});
@@ -84,7 +84,6 @@ public class StaticWallpaperSettings extends PreferenceActivity
 	
 	@Override 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//Log.d(TAG, "onActivityResult");
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (requestCode == 1) {
 			if (resultCode == Activity.RESULT_OK) {
