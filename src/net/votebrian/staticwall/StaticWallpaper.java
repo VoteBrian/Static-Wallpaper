@@ -1,4 +1,4 @@
-package net.votebrian.apps;
+package net.votebrian.staticwall;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,4 +1,4 @@
-package net.votebrian.apps;
+package net.votebrian.staticwall;
 
 import android.content.Context;
 import android.preference.Preference;

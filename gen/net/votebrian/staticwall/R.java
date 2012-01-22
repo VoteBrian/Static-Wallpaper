@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package net.votebrian.apps;
+package net.votebrian.staticwall;
 
 public final class R {
     public static final class array {
@@ -22,7 +22,6 @@ public final class R {
         public static final int ad=0x7f060000;
     }
     public static final class string {
-        public static final int ad_label=0x7f050006;
         public static final int apps_list_name=0x7f050000;
         public static final int preference_summary=0x7f050005;
         public static final int preference_title=0x7f050004;
