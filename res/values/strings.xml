@@ -6,6 +6,8 @@
     
     <string name="settings_title">Settings - Tap back to cancel</string>
     <string name="preference_title">Change Background</string>
-    <string name="preference_summary">Pick and image and crop to match screen dimensions.</string>
+    <string name="preference_summary">Pick an image and crop to match screen dimensions.</string>
+    
+    <string name="ad_label">Google Ads:</string>
     
 </resources>

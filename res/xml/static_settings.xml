@@ -4,6 +4,10 @@
 		xmlns:android="http://schemas.android.com/apk/res/android"
         android:title="@string/settings_title"
         android:key="staticwallpaper_settings">
+        
+	<net.votebrian.apps.AdPreference
+		android:key="ad" />
+		
     <Preference
     		android:key="static_prefs"
     		android:title="@string/preference_title"
