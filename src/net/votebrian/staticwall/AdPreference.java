@@ -5,6 +5,7 @@ import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 public class AdPreference extends Preference {
 
@@ -17,7 +18,8 @@ public class AdPreference extends Preference {
         super(context, attrs);
     }
 	
-	protected View onCreateView() {
+    @Override
+	protected View onCreateView(ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(R.xml.ad_preference, null);
 	}
