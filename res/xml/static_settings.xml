@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen
-		xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="@string/settings_title"
-        android:key="staticwallpaper_settings"
-        android:orderingFromXml="true">
-		
-    <Preference
-		android:key="static_prefs"
-		android:title="@string/preference_title"
-		android:summary="@string/preference_summary" />
-        
-	<net.votebrian.staticwall.AdPreference
-		android:key="adView"
-		android:layout_height="fill_parent"
-		android:layout_width="fill_parent" />
-		
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_title"
+    android:key="staticwallpaper_settings"
+    android:orderingFromXml="true">
+
+  <Preference
+      android:key="static_prefs"
+      android:title="@string/preference_title"
+      android:summary="@string/preference_summary" />
+
+  <net.votebrian.staticwall.AdPreference
+      android:key="adView"
+      android:layout_height="fill_parent"
+      android:layout_width="fill_parent" />
+
 </PreferenceScreen>

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="apps_list_name">Static LiveWallpaper</string>
-    <string name="wp_select_list_name">Static</string>
-    <string name="wp_select_list_desc">Disables wallpaper scrolling.</string>
-    
-    <string name="settings_title">Settings - Tap back to cancel</string>
-    <string name="preference_title">Change Background</string>
-    <string name="preference_summary">Pick an image and crop to match screen dimensions.</string>
-    
+
+  <string name="apps_list_name">Static LiveWallpaper</string>
+  <string name="wp_select_list_name">Static</string>
+  <string name="wp_select_list_desc">Disables wallpaper scrolling.</string>
+
+  <string name="settings_title">Settings - Tap back to cancel</string>
+  <string name="preference_title">Change Background</string>
+  <string name="preference_summary">Pick an image and crop to match screen dimensions.</string>
+
 </resources>
