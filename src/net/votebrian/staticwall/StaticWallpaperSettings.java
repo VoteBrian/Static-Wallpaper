@@ -14,57 +14,61 @@ import android.os.Environment;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Display;
 
-public class StaticWallpaperSettings extends PreferenceActivity 
-  implements SharedPreferences.OnSharedPreferenceChangeListener {
-  private static final String TAG = "StaticWallpaperSettings";
+public class StaticWallpaperSettings extends PreferenceActivity
+    implements SharedPreferences.OnSharedPreferenceChangeListener {
+  //private static final String TAG = "StaticWallpaperSettings";
+
+  private PreferenceManager mPrefManager;
 
   @Override
   protected void onCreate(Bundle savedInsatanceState) {
     //Log.d(TAG, "onCreate");
     super.onCreate(savedInsatanceState);
 
-    getPreferenceManager().setSharedPreferencesName(StaticWallpaper.SHARED_PREFS_NAME);
     addPreferencesFromResource(R.xml.static_settings);
-    getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-    getPreferenceManager()
-      .findPreference("static_prefs")
-      .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+    mPrefManager = getPreferenceManager();
+    mPrefManager.setSharedPreferencesName(StaticWallpaper.SHARED_PREFS_NAME);
+    mPrefManager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-      public boolean onPreferenceClick(Preference preference) {
-        Display display = getWindowManager().getDefaultDisplay(); 
-        int width = display.getWidth();
-        int height = display.getHeight();
+    mPrefManager.findPreference("static_prefs")
+        .setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-        File f = new File(Environment.getExternalStorageDirectory(), StaticWallpaper.EXT_BG_FILENAME);
-        StaticWallpaper.EXT_BG_FILE = f;
-        try {
-          f.createNewFile();
-        } catch (IOException e) {
-          Log.d(TAG, "Count not create temp file");
-          throw new RuntimeException("Could not create temp file to External storage", e);
-        }
+          public boolean onPreferenceClick(Preference preference) {
+            Display display = getWindowManager().getDefaultDisplay();
+            int width = display.getWidth();
+            int height = display.getHeight();
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null)
-          .setType("image/*")
-          .putExtra("crop", "true")
-          .putExtra("aspectX", width)
-          .putExtra("aspectY", height)
-          .putExtra("outputX", width)
-          .putExtra("outputY", height)
-          .putExtra("scale", true)
-          .putExtra("scaleUpIfNeeded", true)
-          .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f))
-          .putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+            File f = new File(Environment.getExternalStorageDirectory(), StaticWallpaper.EXT_BG_FILENAME);
+            StaticWallpaper.EXT_BG_FILE = f;
+            try {
+              f.createNewFile();
+            } catch (IOException e) {
+              //Log.d(TAG, "Count not create temp file");
+              throw new RuntimeException("Could not create temp file to External storage", e);
+            }
 
-        startActivityForResult(intent, 1);
-        return true;
-      }
-    });
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null)
+                .setType("image/*")
+                .putExtra("crop", "true")
+                .putExtra("aspectX", width)
+                .putExtra("aspectY", height)
+                .putExtra("outputX", width)
+                .putExtra("outputY", height)
+                .putExtra("scale", true)
+                .putExtra("scaleUpIfNeeded", true)
+                .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f))
+                .putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+            startActivityForResult(intent, 1);
+            return true;
+          }
+        });
   }
 
   @Override
@@ -88,18 +92,18 @@ public class StaticWallpaperSettings extends PreferenceActivity
     //Log.d(TAG, "onSharedPreferenceChanged");
   }
 
-  @Override 
+  @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data); 
+    super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == 1) {
       if (resultCode == Activity.RESULT_OK) {
-        Log.d(TAG, "RESULT_OK");
+        //Log.d(TAG, "RESULT_OK");
         SharedPreferences customSharedPreference = getSharedPreferences(
             StaticWallpaper.SHARED_PREFS_NAME,
-            Context.MODE_PRIVATE); 
+            Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = customSharedPreference.edit ();
         editor.putBoolean("isSet", true);
-        editor.commit(); 
+        editor.commit();
       }
     }
 
