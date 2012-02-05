@@ -2,7 +2,6 @@
 
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/settings_title"
     android:key="staticwallpaper_settings"
     android:orderingFromXml="true">
 
